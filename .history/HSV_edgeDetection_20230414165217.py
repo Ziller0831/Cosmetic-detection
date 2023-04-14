@@ -43,6 +43,7 @@ while 1:
 
     img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
+    cv2.imshow("Raw", frame)
 
     img = cv2.GaussianBlur(img, (3, 3), 1)
     ret, binary = cv2.threshold(img, 80, 255, cv2.THRESH_BINARY_INV)  # 使用Binary來
@@ -50,6 +51,8 @@ while 1:
     binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, element)
 
     contours, hierarchy = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+    contourSearch("find contours", img, contours, True)
 
     deletList = []
     c, row, column = hierarchy.shape
@@ -67,20 +70,12 @@ while 1:
 
     contours = delet_contours(contours, delete_list)
     print(len(contours), "contours left after length filter")
+    contourSearch("contours after length filtering", img, contours, False)
+
+    result = img.copy()
 
 
-    # hull = cv2.convexHull(contours[1])
-    # cv2.polylines(result, [hull], True, (0, 255, 0), 1)
-
-    for i in range(len(contours)):
-        moment = cv2.moments(contours[i])
-        pt = (int(moment['m10'] / moment['m00']), int(moment['m01'] / moment['m00']))
-        cv2.circle(frame, pt, 2, (0,0,255), 2)
-        text = "(" + str(pt[0]) + ", " + str(pt[1]) + ")" 
-        cv2.putText(frame, text, (pt[0]+10, pt[1]+10), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 255, 255), 1, 8, 0);
     
-    contourSearch("Result", frame, contours, False)
-
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 

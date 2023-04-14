@@ -51,6 +51,8 @@ while 1:
 
     contours, hierarchy = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
+    contourSearch("find contours", img, contours, True)
+
     deletList = []
     c, row, column = hierarchy.shape
     for i in range(row):
@@ -67,6 +69,9 @@ while 1:
 
     contours = delet_contours(contours, delete_list)
     print(len(contours), "contours left after length filter")
+    contourSearch("contours after length filtering", frame, contours, True)
+
+    result = img.copy()
 
 
     # hull = cv2.convexHull(contours[1])
@@ -75,11 +80,11 @@ while 1:
     for i in range(len(contours)):
         moment = cv2.moments(contours[i])
         pt = (int(moment['m10'] / moment['m00']), int(moment['m01'] / moment['m00']))
-        cv2.circle(frame, pt, 2, (0,0,255), 2)
+        cv2.circle(result, pt, 2, (0,0,255), 2)
         text = "(" + str(pt[0]) + ", " + str(pt[1]) + ")" 
-        cv2.putText(frame, text, (pt[0]+10, pt[1]+10), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 255, 255), 1, 8, 0);
+        cv2.putText(result, text, (pt[0]+10, pt[1]+10), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 255, 255), 1, 8, 0);
     
-    contourSearch("Result", frame, contours, False)
+    # cv2.imshow("contours after length filtering", result)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

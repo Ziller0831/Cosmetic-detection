@@ -51,6 +51,8 @@ while 1:
 
     contours, hierarchy = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
+    contourSearch("find contours", img, contours, True)
+
     deletList = []
     c, row, column = hierarchy.shape
     for i in range(row):
@@ -67,19 +69,26 @@ while 1:
 
     contours = delet_contours(contours, delete_list)
     print(len(contours), "contours left after length filter")
+    contourSearch("contours after length filtering", frame, contours, False)
 
+    result = img.copy()
+    # x, y, w, h = cv2.boundingRect(contours)
+    # cv2.rectangle(result, (x,y), (x+w,y+h), (0,255,255), 1)
 
     # hull = cv2.convexHull(contours[1])
     # cv2.polylines(result, [hull], True, (0, 255, 0), 1)
 
     for i in range(len(contours)):
         moment = cv2.moments(contours[i])
-        pt = (int(moment['m10'] / moment['m00']), int(moment['m01'] / moment['m00']))
-        cv2.circle(frame, pt, 2, (0,0,255), 2)
+        pt = (int(moment['m10'] / moment['m00']), int((python.exe:20208): GStreamer-WARNING **: 17:15:49.055: Failed to load plugin 'D:\Anaconda3\envs\opencv\Library\lib\gstreamer-1.0\gstgio.dll': 'D:\Anaconda3\envs\opencv\Library\lib\gstreamer-1.0\gstgio.dll': ?曆??唳?摰?璅∠???
+(python.exe:20208): GStreamer-WARNING **: 17:15:49.061: Failed to load plugin 'D:\Anaconda3\envs\opencv\Library\lib\gstreamer-1.0\gstogg.dll': 'D:\Anaconda3\envs\opencv\Library\lib\gstreamer-1.0\gstogg.dll': ?曆??唳?摰?璅∠???
+(python.exe:20208): GStreamer-WARNING **: 17:15:49.073: Failed to load plugin 'D:\Anaconda3\envs\opencv\Library\lib\gstreamer-1.0\gsttcp.dll': 'D:\Anaconda3\envs\opencv\Library\lib\gstreamer-1.0\gsttcp.dll': ?曆??唳?摰?璅∠???
+(python.exe:20208): GStreamer-WARNING **: 17:15:49.078: Failed to load plugin 'D:\Anaconda3\envs\opencv\Library\lib\gstreamer-1.0\gsttypefindfunctions.dll': 'D:\Anaconda3\envs\opencv\Library\lib\gstreamer-1.0\gsttypefindfunctions.dll': ?曆??唳?摰?璅∠???[ WARN:0@0.393] global C:\b\abs_d8ltn27ay8\croot\opencv-suite_1676452046667\work\modules\videoio\src\cap_gstreamer.cpp (862) cv::GStreamerCapture::isPipelinePlaying OpenCV | GStreamer warning: GStreamer: pipeline have not been created['m01'] / moment['m00']))
+        cv2.circle(result, pt, 2, (0,0,255), 2)
         text = "(" + str(pt[0]) + ", " + str(pt[1]) + ")" 
-        cv2.putText(frame, text, (pt[0]+10, pt[1]+10), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 255, 255), 1, 8, 0);
+        cv2.putText(result, text, (pt[0]+10, pt[1]+10), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 255, 255), 1, 8, 0);
     
-    contourSearch("Result", frame, contours, False)
+    cv2.imshow("center", result)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

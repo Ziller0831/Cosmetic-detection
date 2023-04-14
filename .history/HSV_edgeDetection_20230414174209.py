@@ -75,11 +75,11 @@ while 1:
     for i in range(len(contours)):
         moment = cv2.moments(contours[i])
         pt = (int(moment['m10'] / moment['m00']), int(moment['m01'] / moment['m00']))
-        cv2.circle(frame, pt, 2, (0,0,255), 2)
+        cv2.circle(img, pt, 2, (0,0,255), 2)
         text = "(" + str(pt[0]) + ", " + str(pt[1]) + ")" 
-        cv2.putText(frame, text, (pt[0]+10, pt[1]+10), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 255, 255), 1, 8, 0);
+        cv2.putText(img, text, (pt[0]+10, pt[1]+10), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 255, 255), 1, 8, 0);
     
-    contourSearch("Result", frame, contours, False)
+    contourSearch("Result", frame, contours, True)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

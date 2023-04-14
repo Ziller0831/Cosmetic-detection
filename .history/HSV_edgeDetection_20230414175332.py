@@ -80,6 +80,8 @@ while 1:
         cv2.putText(frame, text, (pt[0]+10, pt[1]+10), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 255, 255), 1, 8, 0);
     
     contourSearch("Result", frame, contours, False)
+    
+    cv2.imshow("Result", frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
