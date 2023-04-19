@@ -1,11 +1,16 @@
 {
     "cSpell.words": [
+        "Cimg",
         "delet",
+        "DSHOW",
         "dtype",
         "hstack",
         "Iamge",
         "imshow",
+        "Limg",
         "OTSU",
+        "Simg",
+        "Sobel",
         "Trackbar"
     ]
 }
