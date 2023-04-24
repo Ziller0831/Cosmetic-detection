@@ -15,7 +15,7 @@ import time
 # }
 
 # TODO:將每個物件的參數加進來獨立化
-#*白色與透明工件在黑布下的HSV參數
+#* 白色與透明工件在黑布下的HSV參數
 WhiteLower = np.array([0, 0, 155])
 WhiteUpper = np.array([180, 25, 255])
 
@@ -116,11 +116,8 @@ if __name__ == '__main__':
             diff_buffer = len(dataBuffer) - int(fps//TargetFPS) + 1
             dataBuffer = dataBuffer[diff_buffer if diff_buffer >= 0 else 0:]
         dataBuffer.append(resultData)
-        # print(int(fps//TargetFPS), len(dataBuffer))#, dataBuffer)
-        # print(np.array(dataBuffer).shape)
         if not dataBuffer[0]: continue
         results_mean = np.mean(np.array(dataBuffer, dtype=object), axis=0)
-        ##* 顯示角度的標準差，需要在開，因為會導致程式Break
         angleData = []
         for arrayPerScan in dataBuffer: angleData.append([objectInArray[-1] for objectInArray in arrayPerScan])
         # print(f"ang:{angleData}")

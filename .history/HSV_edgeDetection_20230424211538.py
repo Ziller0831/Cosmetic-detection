@@ -120,7 +120,7 @@ if __name__ == '__main__':
         # print(np.array(dataBuffer).shape)
         if not dataBuffer[0]: continue
         results_mean = np.mean(np.array(dataBuffer, dtype=object), axis=0)
-        ##* 顯示角度的標準差，需要在開，因為會導致程式Break
+        ##* 顯示角度的
         angleData = []
         for arrayPerScan in dataBuffer: angleData.append([objectInArray[-1] for objectInArray in arrayPerScan])
         # print(f"ang:{angleData}")

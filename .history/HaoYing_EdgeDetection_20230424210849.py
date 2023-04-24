@@ -15,7 +15,7 @@ import time
 # }
 
 # TODO:將每個物件的參數加進來獨立化
-#*白色與透明工件在黑布下的HSV參數
+#* 白色與透明工件在黑布下的HSV參數
 WhiteLower = np.array([0, 0, 155])
 WhiteUpper = np.array([180, 25, 255])
 
@@ -109,18 +109,13 @@ if __name__ == '__main__':
             cv2.circle(frame, gravity_point, 1, (0,0,255), -1)
             
             cv2.line(frame, center_point, gravity_point, (255,0,0), 1)
-
-        # resultData = [[center_point[0], center_point[1], round(theta, 4)],...]
         
         if dataBuffer:
             diff_buffer = len(dataBuffer) - int(fps//TargetFPS) + 1
             dataBuffer = dataBuffer[diff_buffer if diff_buffer >= 0 else 0:]
         dataBuffer.append(resultData)
-        # print(int(fps//TargetFPS), len(dataBuffer))#, dataBuffer)
-        # print(np.array(dataBuffer).shape)
         if not dataBuffer[0]: continue
         results_mean = np.mean(np.array(dataBuffer, dtype=object), axis=0)
-        ##* 顯示角度的標準差，需要在開，因為會導致程式Break
         angleData = []
         for arrayPerScan in dataBuffer: angleData.append([objectInArray[-1] for objectInArray in arrayPerScan])
         # print(f"ang:{angleData}")
@@ -129,16 +124,13 @@ if __name__ == '__main__':
 
 
         for result in results_mean: 
-            text = f"({int(result[0])}, {int(result[1])}, {result[2]-AngleZero_offset:.1f})" ## fstring
-            # text = "({0}, {1})".format(str(gravity_point[0]), str(gravity_point[1])) ##另一種打法
+            text = f"({int(result[0])}, {int(result[1])}, {result[2]-AngleZero_offset:.1f})"
             cv2.putText(frame, text, (int(result[0]+10), int(result[1]+10)), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 64, 255), 2, 8, 0)
-            # cv2.putText(frame, text, (gravity_point[0]+10, gravity_point[1]+10), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 255, 255), 3, 8, 1)
-            # print(len(contours), "contours left after length filter",end="\r")
+
 
         cv2.drawContours(frame, contours, -1, (0,0,255), 2)
         for minRect in minRect_array:
             cv2.drawContours(frame, [minRect], 0, (0, 255, 0), 2)
-            # print(minRect)
         cv2.drawContours(frame, approx_array,-1, (255,0,0), 2)
         fps = round(1/(time.time() - time_start), 2)
 
