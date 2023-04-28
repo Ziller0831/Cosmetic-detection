@@ -81,8 +81,6 @@ if __name__ == '__main__':
         imgBinary = ImagePreprocess(frame)
         cv2.imshow("binary", imgBinary)
         
-
-        
         contours = DeletContours(cv2.findContours(imgBinary, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0])
         # print(len(contours), fps,int(fps//TargetFPS))
         # if dataBuffer:

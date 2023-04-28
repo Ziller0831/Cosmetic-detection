@@ -25,9 +25,13 @@ BlackLower = np.array([0, 0, 154])
 BlackUpper = np.array([180, 255, 230])
 
 Contour_size = [136, 611]
-TargetFPS = 32        ##* 數值越大FPS越高，資料越不穩定
-AngleZero_offset = 90 ##* 0度為x軸正向 順時針範圍0~G360度
+TargetFPS = 10        ##* 數值越大FPS越高，資料越不穩定
+AngleZero_offset = 90 ##* 0度為x軸正向 順時針範圍0~360度
 ArrowLength = 40
+
+
+def nothing(x):
+    pass
 
 def ImagePreprocess(img_src):
     HSV_img = cv2.cvtColor(img_src, cv2.COLOR_BGR2HSV)
@@ -59,7 +63,7 @@ def GravityCalc(moment):
 def AngleIndentify(deltaX, deltaY, angle):
     if deltaX > 0: return angle if deltaY < 0 else 0 if deltaY == 0 else (angle+270) if deltaY > 0 else None
     if deltaX < 0: return (angle+90) if deltaY < 0 else (angle+180) if deltaY > 0 else (angle+180) if deltaY == 0 else None
-    if deltaX == 0: return (angle+90) if deltaY < 0 else (angle+270) if deltaY > 0 else 0
+    if deltaX == 0: return (angle+90) if deltaY < 0 else (angle+270) LSTMif deltaY > 0 else 0
 
 if __name__ == '__main__':
     # ED = Edge_detection()
@@ -80,8 +84,6 @@ if __name__ == '__main__':
 
         imgBinary = ImagePreprocess(frame)
         cv2.imshow("binary", imgBinary)
-        
-
         
         contours = DeletContours(cv2.findContours(imgBinary, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0])
         # print(len(contours), fps,int(fps//TargetFPS))

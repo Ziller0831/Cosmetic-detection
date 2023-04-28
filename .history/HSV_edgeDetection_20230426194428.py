@@ -25,9 +25,13 @@ BlackLower = np.array([0, 0, 154])
 BlackUpper = np.array([180, 255, 230])
 
 Contour_size = [136, 611]
-TargetFPS = 32        ##* 數值越大FPS越高，資料越不穩定
-AngleZero_offset = 90 ##* 0度為x軸正向 順時針範圍0~G360度
+TargetFPS = 10        ##* 數值越大FPS越高，資料越不穩定
+AngleZero_offset = 90 ##* 0度為x軸正向 順時針範圍0~360度
 ArrowLength = 40
+
+
+def nothing(x):
+    pass
 
 def ImagePreprocess(img_src):
     HSV_img = cv2.cvtColor(img_src, cv2.COLOR_BGR2HSV)
@@ -81,8 +85,6 @@ if __name__ == '__main__':
         imgBinary = ImagePreprocess(frame)
         cv2.imshow("binary", imgBinary)
         
-
-        
         contours = DeletContours(cv2.findContours(imgBinary, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0])
         # print(len(contours), fps,int(fps//TargetFPS))
         # if dataBuffer:
@@ -132,7 +134,7 @@ if __name__ == '__main__':
 
         for result in results_mean: 
             text = f"({int(result[0])}, {int(result[1])}, {result[2]-AngleZero_offset:.1f})" ## fstring
-            # text = "({0}, {1})".format(str(gravity_point[0]), str(gravity_point[1])) ##另一種打法
+            text = "({0}, {1})".format(str(gravity_point[0]), str(gravity_point[1])) ##另一種打法
             cv2.putText(frame, text, (int(result[0]+10), int(result[1]+10)), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 64, 255), 2, 8, 0)
             # cv2.putText(frame, text, (gravity_point[0]+10, gravity_point[1]+10), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 255, 255), 3, 8, 1)
             # print(len(contours), "contours left after length filter",end="\r")

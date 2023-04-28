@@ -6,7 +6,7 @@ numpy  version: 1.23.5
 import cv2
 import numpy as np
 import time
-from math import sin, cos, radians
+import math for
 
 # class Edge_detection:
 #     def __init__(self):
@@ -25,9 +25,13 @@ BlackLower = np.array([0, 0, 154])
 BlackUpper = np.array([180, 255, 230])
 
 Contour_size = [136, 611]
-TargetFPS = 32        ##* 數值越大FPS越高，資料越不穩定
-AngleZero_offset = 90 ##* 0度為x軸正向 順時針範圍0~G360度
-ArrowLength = 40
+TargetFPS = 10        ##* 數值越大FPS越高，資料越不穩定
+AngleZero_offset = 90 ##* 0度為x軸正向 順時針範圍0~360度
+ArrowLength = 20
+
+
+def nothing(x):
+    pass
 
 def ImagePreprocess(img_src):
     HSV_img = cv2.cvtColor(img_src, cv2.COLOR_BGR2HSV)
@@ -81,8 +85,6 @@ if __name__ == '__main__':
         imgBinary = ImagePreprocess(frame)
         cv2.imshow("binary", imgBinary)
         
-
-        
         contours = DeletContours(cv2.findContours(imgBinary, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0])
         # print(len(contours), fps,int(fps//TargetFPS))
         # if dataBuffer:
@@ -105,12 +107,12 @@ if __name__ == '__main__':
             #     continue
             
             minRect_array.append(minRect)
-
-            endPoint = [int(center_point[0]+ArrowLength*cos(radians(theta))), int(center_point[1]+(-ArrowLength*sin(radians(theta))))]
-            cv2.arrowedLine(frame, center_point, (endPoint[0], endPoint[1]), (255,100,0), 2)
             
-            cv2.circle(frame, center_point, 3, (0,255,0), -1)
-            cv2.circle(frame, gravity_point, 3, (0,0,255), -1)
+            cv2.circle(frame, center_point, 1, (0,255,0), -1)
+            cv2.circle(frame, gravity_point, 1, (0,0,255), -1)
+            
+            endPoint  = list(center_point[0]+ArrowLength*)
+            cv2.arrowedLine(frame, center_point, gravity_point, (255,0,0), 1)
 
         # resultData = [[center_point[0], center_point[1], round(theta, 4)],...]
         

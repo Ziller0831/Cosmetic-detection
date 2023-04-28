@@ -29,6 +29,10 @@ TargetFPS = 32        ##* 數值越大FPS越高，資料越不穩定
 AngleZero_offset = 90 ##* 0度為x軸正向 順時針範圍0~G360度
 ArrowLength = 40
 
+
+def nothing(x):
+    pass
+
 def ImagePreprocess(img_src):
     HSV_img = cv2.cvtColor(img_src, cv2.COLOR_BGR2HSV)
     HSV_img = cv2.GaussianBlur(HSV_img, (3, 3), 1)
@@ -80,8 +84,6 @@ if __name__ == '__main__':
 
         imgBinary = ImagePreprocess(frame)
         cv2.imshow("binary", imgBinary)
-        
-
         
         contours = DeletContours(cv2.findContours(imgBinary, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[0])
         # print(len(contours), fps,int(fps//TargetFPS))
