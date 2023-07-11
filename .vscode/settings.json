@@ -8,6 +8,7 @@
         "hstack",
         "Iamge",
         "imshow",
+        "imwrite",
         "Indentify",
         "Limg",
         "OTSU",
