@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "Cimg",
+        "coeffs",
         "delet",
         "DSHOW",
         "dtype",
@@ -11,6 +12,7 @@
         "imwrite",
         "Indentify",
         "Limg",
+        "objp",
         "OTSU",
         "Simg",
         "Sobel",

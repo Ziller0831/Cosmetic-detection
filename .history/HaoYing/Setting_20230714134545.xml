@@ -1,0 +1,5 @@
+<CameraCalibration_parameter>
+    <camera_matrix>([10, 10],)</camera_matrix>
+    <rvecs />
+    <tvecs />
+</CameraCalibration_parameter>
