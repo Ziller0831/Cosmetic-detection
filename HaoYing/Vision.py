@@ -10,7 +10,7 @@ import FileProcess as FP
 import numpy as np
 import math
 
-CsvDir = r"./HaoYing/Cosmetic_parameter.csv"
+CsvDir = r"Cosmetic_parameter.csv"
 
 # ProductName = "透白口紅座"  # Input from UI
 
@@ -24,16 +24,17 @@ class EdgeDetector:
         self._Data_buffer = [[]]
 
         if ModeSW == 2: ##% Working Mode
-            _area_avg, _area_Std, _product_color, _catch_offset, _product_height =FP.CSVDataLoad(CsvDir, Product_name)
+            _area_avg, _area_Std, _product_color, _catch_offset, _product_height =FP.CSVDataLoad("E:\HaoYing\Cosmetic_parameter.csv", Product_name)
+            _robot_height = 540
 
             ##* Coordinate transform parameters
             rvec_matrix, _ = cv2.Rodrigues(TF_parm["rvecs"])
             projection_matrix = np.dot(TF_parm["camera_matrix"], np.hstack((rvec_matrix, TF_parm["tvecs"])))
             self.pseudo_inverse_projection = np.linalg.pinv(projection_matrix)
 
-            self._X_offset = 0
-            self._Y_offset = 0
-            self._Z_offset = _product_height
+            self._X_offset = -225
+            self._Y_offset = -102
+            self._Z_offset = -_robot_height
 
             self._Area_range = [_area_avg-_area_Std*5, _area_avg+_area_Std*5]
             if   _product_color == '淺色': self.HSV_range = [np.array([180, 25, 255]),  np.array([0, 0, 155])]
@@ -49,6 +50,8 @@ class EdgeDetector:
     ##@ Camera catch
     def ImageCatch(self, cap):
         ret, frame = cap.read()
+        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+        # frame = cv2.flip(frame, 0)
         if not ret:
             print("Can't receive frame (stream  end?). Exiting ...")
             exit()
@@ -59,7 +62,6 @@ class EdgeDetector:
         HSV_img = cv2.cvtColor(img_src, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(HSV_img, self.HSV_range[1], self.HSV_range[0])
         img_binary  = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)))
-        # print(img_src.shape)
         return img_binary
     
     ##@ Fine contour and select
@@ -81,17 +83,23 @@ class EdgeDetector:
             center_p, minRect, _ = self._MinRectCircle(contour)        
             minRect_array.append(minRect)
 
-            if self._modeSW != 0:
+            cv2.circle(frame, minRect[0], 3, (100,100,255), 2)
+            cv2.circle(frame, minRect[1], 3, (150,50,200), 2)
+            cv2.circle(frame, minRect[2], 3, (80,255,90), 2)
 
-                _, deltaY = center_p - gravity_p
-                angle = self._AngleCalc(minRect, deltaY)
+            if self._modeSW == 2:
+
+                GC_vect = gravity_p - center_p
+                angle = self._AngleCalc(minRect, GC_vect)
                 
-                result_array.append([center_p[0], center_p[1], round(angle, 4)])
+                try:
+                    result_array.append([center_p[0], center_p[1], round(angle, 4)])
             
-                arrow_p = [int(center_p[0]+arrow_length*math.cos(math.radians(angle))), int(center_p[1]-arrow_length*math.sin(math.radians(angle)))]
-                # CatchPoint = [int(center_p[0]+self.catchPoint*cos(radians(angle))), int(center_p[1]-self.catchPoint*sin(radians(angle)))]
+                    arrow_p = [int(center_p[0]+arrow_length*math.cos(math.radians(angle))), int(center_p[1]-arrow_length*math.sin(math.radians(angle)))]
 
-                cv2.arrowedLine(frame, center_p, (arrow_p[0], arrow_p[1]), (255,100,0), 2)
+                    cv2.arrowedLine(frame, center_p, (arrow_p[0], arrow_p[1]), (255,100,0), 2)
+                except:
+                    pass
                 cv2.circle(frame, center_p, 5, (100,255,100), -1)
                 cv2.circle(frame, gravity_p, 5, (0,0,255), -1)
                 # cv2.circle(frame, CatchPoint, 5, (255,0,255), -1)
@@ -106,11 +114,8 @@ class EdgeDetector:
 
     ##@ Calculate the contour gravity point
     def _GPointCalc(self, moment):
-        try:
-            return int(moment['m10']/moment['m00']), int(moment['m01']/moment['m00'])
-        except:
-            return 0, 0
-    
+        return int(moment['m10']/moment['m00']), int(moment['m01']/moment['m00'])
+
     ##@ Contour's minimal rectangle
     def _MinRectCircle(self, contour):
         raw_MinRect = cv2.minAreaRect(contour)
@@ -118,24 +123,41 @@ class EdgeDetector:
         return np.int0(raw_MinRect[0]), min_rect, round(raw_MinRect[2], 4)
     
     ##@ Use minimal rectangle point to calculate the object angle
-    def _AngleCalc(self, minRect_P, deltaY):
-        vector_a = minRect_P[1] - minRect_P[0]
-        vector_b = minRect_P[1] - minRect_P[2]
+    def _AngleCalc(self, minRect_P, GC_vect):
+        vect_a = minRect_P[1] - minRect_P[0]
+        vect_b = minRect_P[2] - minRect_P[1]
 
-        vector_a_val = (vector_a[0]**2+vector_a[1]**2)**0.5
-        vector_b_val = (vector_b[0]**2+vector_b[1]**2)**0.5
+        vect_a_val = (vect_a[0]**2+vect_a[1]**2)**0.5
+        vect_b_val = (vect_b[0]**2+vect_b[1]**2)**0.5
 
-        if(vector_a_val < vector_b_val):
-            vector = vector_a
-        elif(vector_a_val > vector_b_val):
-            vector = vector_b
-        
-        theta = cv2.fastAtan2(int(vector[0]), int(vector[1]))
+        if(vect_a_val < vect_b_val):
+            short_vect = np.array(vect_a)
+            long_vect = np.array(vect_b)
+            vect_val = vect_b_val
+        elif(vect_a_val > vect_b_val):
+            short_vect = np.array(vect_b)
+            long_vect = np.array(vect_a)
+            vect_val = vect_a_val
 
-        if deltaY < 0:
-            return (theta + 180)%360
+        vect_GC_val = (GC_vect[0]**2 + GC_vect[1]**2)**0.5
+        long_GC_cos = long_vect @ GC_vect / (vect_val * vect_GC_val)
+
+        theta = cv2.fastAtan2(int(short_vect[0]), int(short_vect[1]))
+        x = 0 
+        pre_theta = theta
+
+        if long_GC_cos < 0 and long_GC_cos >= -1 and theta <= 90 and theta >= 0: ## 第三象限反轉
+            short_vect = np.array([-short_vect[0], -short_vect[1]])
+            theta = cv2.fastAtan2(int(short_vect[0]), int(short_vect[1]))
+            x = 1
+        elif long_GC_cos > 0 and long_GC_cos <= 1 and theta <= 180 and theta >= 90:  ## 第四象限反轉
+            short_vect = np.array([-short_vect[0], -short_vect[1]])
+            theta = cv2.fastAtan2(int(short_vect[0]), int(short_vect[1]))
+            x = 2
         else:
-            return theta
+            pass
+        
+        return theta
 
     ##@ FPS buffer(let output stable)
     def FPSBuffer(self, fps = 30, result_data = None):
@@ -149,10 +171,10 @@ class EdgeDetector:
         return results_mean
 
     ##@ Pixel coordinate transfer to world coordinate
-    def Coordinate_TF(self, pixel_coordinate):
-        homo2pixel = np.array([pixel_coordinate], dtype=np.float32).T
+    def Coordinate_TF(self, pixel_x, pixel_y):
+        homo2pixel = np.array([pixel_x, pixel_y, 1], dtype=np.float32).T
         homo2world = np.dot(self.pseudo_inverse_projection, homo2pixel)
-        world_x = homo2world[0] / homo2world[3]
-        world_y = homo2world[1] / homo2world[3]
-
-        return world_x, world_y
+        world_x = self._X_offset + (homo2world[0] / homo2world[3])
+        world_y = self._Y_offset - (homo2world[1] / homo2world[3]) 
+        world_z = self._Z_offset
+        return world_x, world_y, world_z

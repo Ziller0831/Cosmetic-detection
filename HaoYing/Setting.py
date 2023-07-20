@@ -11,9 +11,9 @@ class initialize:
         self._CheckPoint = [[320,240], [150,110], [150,375], [475,375], [475,110]]
         self._TargetEdgeSize = 90
 
-        self._Chessboard = (9,6)
-        self._Chessboard_squareSize = 24 # mm
-        self._Chessboard_path = r"./HaoYing/Chessboard_image/"
+        self._Chessboard = (8,5)
+        self._Chessboard_squareSize = 20 # mm
+        self._Chessboard_path = r"Chessboard_image/"
 
     def AreaIdent(self, cap):
         """
@@ -73,7 +73,7 @@ class initialize:
             print('將校正板放置在紅點處, 放置後請按Enter',end='\r')
             key = cv2.waitKey(1)
             if  key == 13:
-                cv2.imwrite(self._Chessboard_path+"Standard.png", frame)
+                cv2.imwrite("Standard.png", frame)
                 print("拍照完成")
                 break
             if cv2.waitKey(1) & 0xFF == 27: ## 27 = ESC
@@ -114,7 +114,7 @@ class initialize:
         print(f"Camera distortion parameter:{dist_coeffs}")
 
         self._StandardCatch(cap)
-        std_img = cv2.imread(r'.\HaoYing\Standard.png')
+        std_img = cv2.imread(r'E:\HaoYing\Standard.png')
         gray = cv2.cvtColor(std_img, cv2.COLOR_BGR2GRAY)
 
         ret, corners = cv2.findChessboardCorners(gray, self._Chessboard, None)

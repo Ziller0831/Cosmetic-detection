@@ -12,11 +12,11 @@ import Setting
 import FileProcess as FP
 import TCP
 
-Choose_product = "長樣品瓶"
-Mode = 2
+Choose_product = "長樣品蓋"
+Mode = 1
 fps = 30            
 AngleZero_offset = 0 ##* 0度為x軸正向 順時針範圍0~G360度
-Csv_Dir = r"./HaoYing/Cosmetic_parameter.csv"
+Csv_Dir = r"E:\HaoYing\Cosmetic_parameter.csv"
 TCP_host = "0.0.0.0"
 TCP_port = "7000"
 
@@ -36,18 +36,19 @@ if __name__ == "__main__":
         calibration = {"camera_matrix": camera_matrix, "rvecs": rvecs, "tvecs": tvecs}
 
         for i in calibration:
-            FP.XMLWrite(r".\HaoYing\Setting.xml", str(i),  [[float(num) for num in row] for row in calibration[str(i)]])
+            FP.XMLWrite(r"Setting.xml", str(i),  [[float(num) for num in row] for row in calibration[str(i)]])
     
     elif Mode == 2: ##! working mode
         TF_para = {"camera_matrix": 0, "rvecs": 0, "tvecs": 0}
         for i in TF_para:
-            TF_para[i] = FP.XMLRead(r".\HaoYing\Setting.xml", str(i))
+            TF_para[i] = FP.XMLRead(r"Setting.xml", str(i))
 
         vision = Vision.EdgeDetector(Mode, Choose_product, TF_para)
         time_start = time()
 
         while True:
             frame = vision.ImageCatch(cap)
+            # frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
             img_binary = vision.ImagePreProcess(frame)
             contours = vision.ContoursCalc(img_binary)
             frame, result_array, _ = vision.FeaturesCalc(frame, contours)
@@ -58,15 +59,15 @@ if __name__ == "__main__":
             for result in results_mean:
                 pixel_x = int(result[0])
                 pixel_y = int(result[1])
-                # pixel_z = int(result[2])
-                object_angle = result[2]-AngleZero_offset
+                object_angle = round(result[2]-AngleZero_offset, 1)
 
                 text = f"({pixel_x}, {pixel_y}, {object_angle:.1f})"
 
                 cv2.putText(frame, text, (int(pixel_x+10),int(pixel_y+10)), cv2.FONT_HERSHEY_PLAIN,1.5,(255,64,255),2,8,0)
-                world_x, world_y = vision.Coordinate_TF([pixel_x, pixel_y, 1])
+                world_coordinate = vision.Coordinate_TF(pixel_x, pixel_y)
+                output = [round(world_coordinate[0], 1), round(world_coordinate[1], 1), world_coordinate[2], object_angle]
 
-            print(text)
+            print(output)
             # recall = TCP.Client(TCP_host, TCP_port, text)
             # print(recall)
 
