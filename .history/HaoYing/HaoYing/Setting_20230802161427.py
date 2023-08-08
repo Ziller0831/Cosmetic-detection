@@ -9,13 +9,12 @@ import os
 class initialize:
     def __init__(self):
         self._vision = Vision.EdgeDetector(0)
-        # self._CheckPoint = [[320,240], [150,110], [150,375], [475,375], [475,110]]
-        self._CheckPoint = [[240,320], [110,100], [375,100], [375,525], [110,525]]
+        self._CheckPoint = [[320,240], [150,110], [150,375], [475,375], [475,110]]
         self._TargetEdgeSize = 90
 
         self._Chessboard = (8,5)
         self._Chessboard_squareSize = 20 # mm
-        self._path = os.path.join(os.getcwd(), 'HaoYing', 'CalibrationImage')
+        self._path = os.path.join(os.path.dirname(os.getcwd()), 'CalibrationImage')
 
     def AreaIdent(self, cap):
         """
@@ -30,7 +29,7 @@ class initialize:
                 frame = self._vision.ImageCatch()
                 cv2.circle(frame, (x, y), 5, (0,0,255), -1)
                 cv2.imshow("Image", frame)
-                print('請換下個位置, 放置後請按ENTER',end='\r')
+                print('請換下個位置，放置後請按Q',end='\r')
             print('')
             for i in range(100):
                 print(f'請勿進入鏡頭範圍，目前搜尋數據量:{i+1}', end = '\r')
@@ -53,14 +52,15 @@ class initialize:
         """
         ##@ 棋盤格截圖
         """
+        _chessboard_path = os.path.join(self._path, 'chessboard')
         count = 0
         while count < 10:
-            frame = self._vision.ImageCatch()
+            frame = self._vision.ImageCatch(cap)
             cv2.imshow("Webcam", frame)
             print('將校正板放置在紅點處, 放置後請按Enter',end='\r')
             key = cv2.waitKey(1)
             if  key == 13:
-                cv2.imwrite(self._path + str(count)+'.png', frame, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
+                cv2.imwrite(_chessboard_path+str(count)+'.png', frame, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
                 print(f"已拍攝並儲存照片 {count}")
                 count += 1
             if cv2.waitKey(1) & 0xFF == 27: ## 27 = ESC
@@ -69,9 +69,9 @@ class initialize:
 
     
     def _StandardCatch(self, cap):
-        _standard_path = os.path.join(self._path)
+        _standard_path = os.path.join(self._path, 'standard')
         while True:
-            frame = self._vision.ImageCatch()
+            frame = self._vision.ImageCatch(cap)
             cv2.imshow("Webcam", frame)
             print('將校正板放置在紅點處, 放置後請按Enter',end='\r')
             key = cv2.waitKey(1)
@@ -97,7 +97,7 @@ class initialize:
 
         
         self._ChessboardCatch(cap)
-        _chessboard_path = os.path.join(self._path, './', 'chessboard')
+        _chessboard_path = os.path.join(self._path, 'chessboard')
         image_paths = glob.glob(_chessboard_path+"*.png")
 
         for image_path in image_paths:

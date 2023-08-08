@@ -62,7 +62,7 @@ def WorkMode(Choose_product):
         object_angle = round(result[2]-AngleZero_offset, 1)
 
         text = f"({pixel_x}, {pixel_y}, {object_angle:.1f})"
- 
+
         cv2.putText(frame, text, (int(pixel_x+10),int(pixel_y+10)), cv2.FONT_HERSHEY_PLAIN,1.5,(255,64,255),2,8,0)
         world_coordinate = vision.Coordinate_TF(pixel_x, pixel_y)
         output[0] = round(world_coordinate[0], 3)

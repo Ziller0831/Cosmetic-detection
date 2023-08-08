@@ -53,6 +53,8 @@ class initialize:
         """
         ##@ 棋盤格截圖
         """
+        _chessboard_path = os.path.join(self._path, 'chessboard') + '/'
+        print(_chessboard_path)
         count = 0
         while count < 10:
             frame = self._vision.ImageCatch()
@@ -60,7 +62,7 @@ class initialize:
             print('將校正板放置在紅點處, 放置後請按Enter',end='\r')
             key = cv2.waitKey(1)
             if  key == 13:
-                cv2.imwrite(self._path + str(count)+'.png', frame, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
+                cv2.imwrite(_chessboard_path + +str(count)+'.png', frame, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
                 print(f"已拍攝並儲存照片 {count}")
                 count += 1
             if cv2.waitKey(1) & 0xFF == 27: ## 27 = ESC
@@ -69,7 +71,7 @@ class initialize:
 
     
     def _StandardCatch(self, cap):
-        _standard_path = os.path.join(self._path)
+        _standard_path = os.path.join(self._path, 'standard') + '/'
         while True:
             frame = self._vision.ImageCatch()
             cv2.imshow("Webcam", frame)
@@ -97,7 +99,7 @@ class initialize:
 
         
         self._ChessboardCatch(cap)
-        _chessboard_path = os.path.join(self._path, './', 'chessboard')
+        _chessboard_path = os.path.join(self._path, 'chessboard') + '/'
         image_paths = glob.glob(_chessboard_path+"*.png")
 
         for image_path in image_paths:

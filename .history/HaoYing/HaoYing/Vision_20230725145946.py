@@ -40,7 +40,7 @@ class EdgeDetector:
             self._Y_offset = -102
             self._Z_offset = -_robot_height
 
-            self._Area_range = [_area_avg-_area_Std*3, _area_avg+_area_Std*3]
+            self._Area_range = [_area_avg-_area_Std*5, _area_avg+_area_Std*5]
 
             if   _product_color == '淺色': self.HSV_range = [np.array([180, 25, 255]),  np.array([0, 0, 155])]
             elif _product_color == '深色': self.HSV_range = [np.array([180, 255, 230]), np.array([0, 0, 154])]
@@ -78,6 +78,7 @@ class EdgeDetector:
         
     ##@ Calculate the contour feature
     def FeaturesCalc(self, frame, contours):
+        arrow_length  = 50
         minRect_array = []
         result_array  = []
 
@@ -94,15 +95,16 @@ class EdgeDetector:
             if self._modeSW == 2:
                 GC_vect = gravity_p - center_p
                 angle = self._AngleCalc(minRect, GC_vect)
+                
                 try:
-                    catch_p = [int(center_p[0]+self.catchPoint*math.cos(math.radians(angle))), int(center_p[1]-self.catchPoint*math.sin(math.radians(angle)))]
-                    result_array.append([catch_p[0], catch_p[1], round(angle, 4)])
-                    cv2.arrowedLine(frame, center_p, (catch_p[0], catch_p[1]), (255,100,0), 2)
+                    result_array.append([center_p[0], center_p[1], round(angle, 4)])
+                    arrow_p = [int(center_p[0]+arrow_length*math.cos(math.radians(angle))), int(center_p[1]-arrow_length*math.sin(math.radians(angle)))]
+                    cv2.arrowedLine(frame, center_p, (arrow_p[0], arrow_p[1]), (255,100,0), 2)
                 except:
                     pass
                 cv2.circle(frame, center_p, 5, (100,255,100), -1)
                 cv2.circle(frame, gravity_p, 5, (0,0,255), -1)
-                cv2.circle(frame, catch_p, 5, (255,100,255), -1)
+                # cv2.circle(frame, CatchPoint, 5, (255,0,255), -1)
 
         if self._modeSW != 2:
             cv2.drawContours(frame, contours, -1, (0,0,255), 2)
@@ -114,10 +116,7 @@ class EdgeDetector:
 
     ##@ Calculate the contour gravity point
     def _GPointCalc(self, moment):
-        try:
-            return int(moment['m10']/moment['m00']), int(moment['m01']/moment['m00'])
-        except:
-            return 1
+        return int(moment['m10']/moment['m00']), int(moment['m01']/moment['m00'])
 
     ##@ Contour's minimal rectangle
     def _MinRectCircle(self, contour):

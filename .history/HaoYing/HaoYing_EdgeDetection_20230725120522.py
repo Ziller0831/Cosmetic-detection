@@ -10,7 +10,7 @@ from time import time
 import HaoYing as HY
 
 Choose_product = "長樣品蓋"
-Mode = 2
+Mode = 1
 fps = 30            
 AngleZero_offset = 0 ##* 0度為x軸正向 順時針範圍0~G360度
 Csv_Dir = r"E:\HaoYing\Cosmetic_parameter.csv"

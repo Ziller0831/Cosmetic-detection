@@ -69,7 +69,6 @@ class initialize:
 
     
     def _StandardCatch(self, cap):
-        _standard_path = os.path.join(self._path)
         while True:
             frame = self._vision.ImageCatch()
             cv2.imshow("Webcam", frame)

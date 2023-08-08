@@ -12,6 +12,8 @@ import os
 
 Choose_product = "長樣品蓋"         
 AngleZero_offset = 0 ##* 0度為x軸正向 順時針範圍0~G360度
+# TCP_host = "0.0.0.0"
+# TCP_port = "7000"
 
 
  ##! 物件輪廓選擇mode
@@ -62,7 +64,7 @@ def WorkMode(Choose_product):
         object_angle = round(result[2]-AngleZero_offset, 1)
 
         text = f"({pixel_x}, {pixel_y}, {object_angle:.1f})"
- 
+
         cv2.putText(frame, text, (int(pixel_x+10),int(pixel_y+10)), cv2.FONT_HERSHEY_PLAIN,1.5,(255,64,255),2,8,0)
         world_coordinate = vision.Coordinate_TF(pixel_x, pixel_y)
         output[0] = round(world_coordinate[0], 3)
@@ -82,7 +84,7 @@ if __name__ == "__main__":
 
     # ObjectContours("長樣品蓋")
 
-    CameraCalibration()
+    
 
 
 cv2.destroyAllWindows()

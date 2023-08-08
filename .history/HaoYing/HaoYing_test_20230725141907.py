@@ -12,6 +12,8 @@ import os
 
 Choose_product = "長樣品蓋"         
 AngleZero_offset = 0 ##* 0度為x軸正向 順時針範圍0~G360度
+# TCP_host = "0.0.0.0"
+# TCP_port = "7000"
 
 
  ##! 物件輪廓選擇mode
@@ -40,6 +42,7 @@ def CameraCalibration():
 
 def WorkMode(Choose_product):
     _path = os.path.join(os.getcwd(), 'HaoYing')
+    # _path =os.getcwd()
 
     TF_para = {"camera_matrix": 0, "rvecs": 0, "tvecs": 0}
     XML_path = os.path.join(_path, 'Data', 'Setting.xml')
@@ -62,7 +65,7 @@ def WorkMode(Choose_product):
         object_angle = round(result[2]-AngleZero_offset, 1)
 
         text = f"({pixel_x}, {pixel_y}, {object_angle:.1f})"
- 
+
         cv2.putText(frame, text, (int(pixel_x+10),int(pixel_y+10)), cv2.FONT_HERSHEY_PLAIN,1.5,(255,64,255),2,8,0)
         world_coordinate = vision.Coordinate_TF(pixel_x, pixel_y)
         output[0] = round(world_coordinate[0], 3)
@@ -71,18 +74,16 @@ def WorkMode(Choose_product):
         output[3] = object_angle
         output[4] = 70
         
-    # cv2.imshow("Result", frame)
-    # cv2.waitKey(5000)
+    cv2.imshow("Result", frame)
+    cv2.waitKey(5000)
 
     return output
 
 if __name__ == "__main__":
-    # x, y, z, angle, speed = WorkMode("長樣品蓋")
-    # print(x, y, z, angle, speed)
-
-    # ObjectContours("長樣品蓋")
-
-    CameraCalibration()
+    x, y, z, angle, speed = WorkMode("長樣品蓋")
+    print(x, y, z, angle, speed)
+    
 
 
+# cap.release()
 cv2.destroyAllWindows()

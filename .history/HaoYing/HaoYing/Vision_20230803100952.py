@@ -8,7 +8,7 @@ pandas version: 1.5.3
 import cv2
 import numpy as np
 import math
-
+f
 
 class EdgeDetector:
     def __init__(self, ModeSW = 2, TF_parm = "", *Product_features):
@@ -94,6 +94,7 @@ class EdgeDetector:
             if self._modeSW == 2:
                 GC_vect = gravity_p - center_p
                 angle = self._AngleCalc(minRect, GC_vect)
+                
                 try:
                     catch_p = [int(center_p[0]+self.catchPoint*math.cos(math.radians(angle))), int(center_p[1]-self.catchPoint*math.sin(math.radians(angle)))]
                     result_array.append([catch_p[0], catch_p[1], round(angle, 4)])

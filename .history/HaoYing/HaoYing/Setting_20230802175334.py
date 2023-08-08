@@ -69,14 +69,13 @@ class initialize:
 
     
     def _StandardCatch(self, cap):
-        _standard_path = os.path.join(self._path)
         while True:
             frame = self._vision.ImageCatch()
             cv2.imshow("Webcam", frame)
             print('將校正板放置在紅點處, 放置後請按Enter',end='\r')
             key = cv2.waitKey(1)
             if  key == 13:
-                cv2.imwrite(_standard_path+"Standard.png", frame)
+                cv2.imwrite(self._path+"Standard.png", frame)
                 print("拍照完成")
                 break
             if cv2.waitKey(1) & 0xFF == 27: ## 27 = ESC
