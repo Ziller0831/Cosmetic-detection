@@ -13,12 +13,16 @@ import numpy as np
 import math
 import csv
 
-CurrentDir = os.getcwd()
-Camera2Robot_coord = os.path.join(CurrentDir, "./Data/Camera_to_Robot.csv")
 
 
 class EdgeDetector:
     def __init__(self, ModeSW = 2, TF_parm = "", *ProductFeatures):
+
+        ##! 請記得路徑是否正確
+        CurrentDir = "C:\\Users\\TEST\\Desktop\\HaoYing_Final\\ObjectVision\\HaoYing"
+        
+        Camera2Robot_coord =  os.path.abspath(os.path.join(CurrentDir, "..\\Data\\Camera_to_Robot.csv"))
+        
         ##* 載入產品參數
         _areaAvg       = ProductFeatures[0][0]
         _areaStd       = ProductFeatures[0][1]
@@ -26,8 +30,9 @@ class EdgeDetector:
         _catchOffset   = ProductFeatures[0][3]
         self._productHeight = ProductFeatures[0][4]
 
-        self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        self.cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
 
+        ##* 相機參數調整
         if   _productColor  == '深色':  ##* 深色物件淺色背景
             self.cap.set(cv2.CAP_PROP_BRIGHTNESS, 220)  ##* 亮度調整
             self.cap.set(cv2.CAP_PROP_CONTRAST, 60)     ##* 對比調整
@@ -39,7 +44,6 @@ class EdgeDetector:
             print("無法打開相機")
 
         self._modeSW = ModeSW
-
         ##% Working Mode
         if ModeSW == 2: 
             ##* Pixel2Camera parameters
@@ -52,14 +56,19 @@ class EdgeDetector:
                 CRList = list(csv.reader(CR_csv))
             self._X_offset = float(CRList[0][0])
             self._Y_offset = float(CRList[0][1])
-            self._Z_offset = -538
+            #self._Z_offset = -538  ## 固定式吸盤的吸取高度 
+            self._Z_offset = -475   ## 90度旋轉吸盤的吸取高度
 
+            ##* HSV參數調整(視二值化效果而定)
             if   _productColor == '淺色': self.HSV_range = [np.array([180, 25, 255]),  np.array([0, 0, 155])]
             elif _productColor == '深色': self.HSV_range = [np.array([180, 25, 255]),  np.array([0, 0, 155])]
             else: print('Error: No such product color')
 
-            self._AreaRange = [_areaAvg-_areaStd*3, _areaAvg+_areaStd*3]
+            ##* 輪廓面積界定
+            self._AreaRange = [_areaAvg-_areaStd*2, _areaAvg+_areaStd*2]
             self.catchPoint = _catchOffset
+
+            # print(self._AreaRange)
 
         elif ModeSW == 0: ##% Initialization mode
             self._AreaRange = [500, 10000]
@@ -97,13 +106,11 @@ class EdgeDetector:
         featuresArray  = []   ##* Output array(catch point[x, y], angle)
 
         for contour in contours:
-            print(cv2.contourArea(contour))
             moment = cv2.moments(contour)
             gravity_p = np.array(self._GPointCalc(moment))
-            center_p, minRect, _ = self._MinRectCircle(contour)        
-            minRectArray.append(minRect)
+            center_p, minRect  = self._MinRectCircle(contour)  
 
-            ##* 最小外矩形邊的鄰近3點
+            ##* 顯示輪廓最小外矩形邊的鄰近3點
             # cv2.circle(frame, minRect[0], 3, (100,100,255), 2)
             # cv2.circle(frame, minRect[1], 3, (150,50,200), 2)
             # cv2.circle(frame, minRect[2], 3, (80,255,90), 2)
@@ -111,35 +118,34 @@ class EdgeDetector:
             if self._modeSW == 2:
                 G2C_vect = gravity_p - center_p  ##* Gravity to Center vector
                 
-                try:
-                    angle = self._AngleCalc(minRect, G2C_vect)
-                    catch_p = [int(center_p[0]+self.catchPoint*math.cos(math.radians(angle))), int(center_p[1]-self.catchPoint*math.sin(math.radians(angle)))]
-                    featuresArray.append([catch_p[0], catch_p[1], round(angle, 4)])
-                except:
-                    pass
+                angle = self._AngleCalc(minRect, G2C_vect)
+                catch_p = [int(center_p[0]+self.catchPoint*math.cos(math.radians(angle))), int(center_p[1]-self.catchPoint*math.sin(math.radians(angle)))]
+                featuresArray.append([catch_p[0], catch_p[1], round(angle, 4)])
                 cv2.circle(frame, catch_p, 5, (255,100,255), -1)
 
-        if self._modeSW != 2:
-            cv2.drawContours(frame, contours, -1, (0,0,255), 2)
+
+        cv2.drawContours(frame, contours, -1, (0,0,255), 2)
 
         for minRect in minRectArray:
             cv2.drawContours(frame, [minRect], 0, (0, 255, 0), 2)
-        
-        return frame, featuresArray, minRectArray
 
+        
+        return frame, featuresArray
 
 
     ##@ Calculate the contour gravity point
     def _GPointCalc(self, moment):
-        try:    return int(moment['m10']/moment['m00']), int(moment['m01']/moment['m00'])
-        except: return 1
-    
+        try:
+            return int(moment['m10']/moment['m00']), int(moment['m01']/moment['m00'])
+        except: 
+            return 1
 
+    
     ##@ Contour's minimal rectangle
     def _MinRectCircle(self, contour):
         rawMinRect = cv2.minAreaRect(contour)
         minRect = np.int0(cv2.boxPoints(rawMinRect))
-        return np.int0(rawMinRect[0]), minRect, round(minRect[2], 4)
+        return np.int0(rawMinRect[0]), minRect
     
     
     ##@ 使用輪廓最小外矩形邊上的三個端點組合出向量再判斷物件方向與角度
@@ -158,6 +164,8 @@ class EdgeDetector:
             shortVect = np.array(vect_b)
             longVect = np.array(vect_a)
             vectVal = vect_a_val
+        else:
+            return 90
 
         vect_GC_val = (G2C_vect[0]**2 + G2C_vect[1]**2)**0.5
         longG_C_cos = longVect @ G2C_vect / (vectVal * vect_GC_val)
@@ -179,6 +187,6 @@ class EdgeDetector:
         world2homo = np.dot(self.pseudoInverseProjection, homo2pixel)
         world_x = self._X_offset + (world2homo[0] / world2homo[3])
         world_y = self._Y_offset - (world2homo[1] / world2homo[3]) 
-        world_z = self._Z_offset + self._product_height
+        world_z = self._Z_offset + self._productHeight
         
         return world_x, world_y, world_z

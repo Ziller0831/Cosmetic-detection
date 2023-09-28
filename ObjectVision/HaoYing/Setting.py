@@ -13,7 +13,8 @@ import numpy as np
 import HaoYing.Vision as Vision
 import HaoYing.FileProcess as FP
 
-CurrentDir = os.getcwd()
+##! 請記得路徑是否正確
+CurrentDir = "C:\\Users\\TEST\\Desktop\\HaoYing_Final\\ObjectVision\\HaoYing"
 
 def TextPrint(frame, text):
     wordColor = (0, 255, 255)    # 字的顏色
@@ -64,7 +65,7 @@ class initialize:
 
     ##@ 拍攝校準用棋盤格
     def _ChessboardCatch(self):
-        workPath = os.path.join(CurrentDir, "./CalibrationImage")
+        workPath =  os.path.abspath(os.path.join(CurrentDir, "..\\CalibrationImage"))
         os.chdir(workPath)
 
         count = 0
@@ -112,7 +113,7 @@ class initialize:
 
         self._ChessboardCatch()
         os.chdir(CurrentDir)
-        imagePaths = glob.glob("CalibrationImage/*.png")
+        imagePaths = glob.glob("..\\CalibrationImage\\*.png")
 
         for imagePath in imagePaths:
             img = cv2.imread(imagePath)

@@ -3,6 +3,8 @@
     HaoYing 變數儲存 副程式
 
 負責從xml跟csv中載入變數或儲存變數的程式
+CSV 儲存辨識物件的參數
+XML 儲存相機標定與校正的結果
 ********************************
 '''
 
@@ -14,13 +16,16 @@ import ast
 
 ##@ Rewrite .csv data
 def CSVDataWrite(productName="", csvPath="", areaMean="", areaStd=""):
-    fileName = read_csv(csvPath, encoding='BIG5').to_dict() 
-    productIndex = next((key for key, name in fileName.get('global result_array').items() if name == productName), None)
-    resultData = [areaMean, areaStd]
-
-    csv_data = DataFrame(fileName)
-    csv_data.loc[[productIndex], ["面積平均","面積標準差"]] = resultData
-    csv_data.to_csv(csvPath, index = False, encoding = 'BIG5')
+    csv_data = read_csv(csvPath, encoding='BIG5')
+    
+    # 尋找符合productName的行索引
+    productIndex = csv_data[csv_data['產品名稱'] == productName].index
+    if not productIndex.empty:
+        # 如果找到了，更新該行的特定列的值
+        csv_data.loc[productIndex, ["面積平均", "面積標準差"]] = [areaMean, areaStd]
+        csv_data.to_csv(csvPath, index=False, encoding='BIG5')
+    else:
+        print(f"產品名稱 {productName} 在CSV中未找到。")
 
 
 ##@ Load .csv data
