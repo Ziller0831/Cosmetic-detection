@@ -84,7 +84,7 @@ class EdgeDetector:
                 CRList = list(csv.reader(CR_csv))
             self._X_offset = float(CRList[0][0])
             self._Y_offset = float(CRList[0][1])
-            # self._Z_offset = 未加末端效應器的工作面高度-末端效應器高度
+            # self._Z_offset = 工作面高度
             # self._Z_offset = -538  ## 固定式吸盤的吸取高度 
             self._Z_offset = -475   ## 90度旋轉吸盤的吸取高度
 
