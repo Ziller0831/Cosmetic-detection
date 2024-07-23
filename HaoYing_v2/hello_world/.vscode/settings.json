@@ -1,9 +1,0 @@
-{
-  "C_Cpp.intelliSenseEngine": "default",
-  "idf.portWin": "COM7",
-  "idf.adapterTargetName": "esp32s2",
-  "idf.openOcdConfigs": [
-    "board/esp32s2-kaluga-1.cfg"
-  ],
-  "idf.flashType": "JTAG"
-}
